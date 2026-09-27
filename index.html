@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIkors — Premium Assignment & Study Notes</title>
+  <meta name="description" content="Discover and purchase quality assignment notes, banking notes, study PDFs, and educational resources. Instant delivery after payment.">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: rgba(99,255,195,0.08);
+      border: 1px solid rgba(99,255,195,0.2);
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-display);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--neon-green);
+      margin-bottom: 32px;
+    }
+    .hero-title {
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 24px;
+    }
+    .hero-gradient-text {
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 64px;
+      flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-number {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .hero-stat-label { font-size: 0.85rem; color: var(--text-muted); }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width:400px;height:400px;background:rgba(99,255,195,0.08);top:10%;left:5%;animation-delay:0s; }
+    .orb-2 { width:300px;height:300px;background:rgba(77,159,255,0.08);top:20%;right:10%;animation-delay:-3s; }
+    .orb-3 { width:250px;height:250px;background:rgba(176,109,255,0.06);bottom:10%;left:40%;animation-delay:-6s; }
+    @keyframes float {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+    .category-pills { display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px; }
+    .pill {
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: var(--font-display);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .pill:hover, .pill.active {
+      background: rgba(99,255,195,0.1);
+      border-color: rgba(99,255,195,0.3);
+      color: var(--neon-green);
+    }
+    .search-bar {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .search-bar:focus-within {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 0 3px rgba(99,255,195,0.08);
+    }
+    .search-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      padding: 14px 20px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+    .search-bar input::placeholder { color: var(--text-muted); }
+    .search-bar button {
+      padding: 10px 20px;
+      margin: 6px;
+      background: var(--neon-green);
+      color: #080c14;
+      border-radius: 100px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+    }
+    .features-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px; }
+    .feature-card {
+      padding: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: var(--transition);
+    }
+    .feature-card:hover { border-color:var(--border-hover);background:var(--bg-card-hover); }
+    .feature-icon {
+      width: 48px;height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="nav-logo">AIkors</a>
+  <ul class="nav-links">
+    <li><a href="#products" onclick="scrollToProducts(event)">Notes</a></li>
+    <li><a href="#features" onclick="scrollToFeatures(event)">Why Us</a></li>
+    <li><a href="/dashboard">Dashboard</a></li>
+  </ul>
+  <div class="nav-actions" id="nav-actions"></div>
+</nav>
+
+<div id="toast-container"></div>
+
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-eyebrow"><span>⚡</span><span>Premium Study Resources</span></div>
+
+  <h1 class="hero-title">
+    Study Smarter With<br>
+    <span class="hero-gradient-text">Assignment & Study Notes</span>
+  </h1>
+
+  <p class="hero-subtitle">
+    Instant access to assignment notes, banking study material, PDFs, and educational resources.
+    Pay once, download instantly. Simple, affordable, and ready to study.
+  </p>
+
+  <div class="hero-actions">
+    <!-- FIXED: Inline onclick with proper scroll behavior -->
+    <button
+      onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})"
+      class="btn-primary"
+      style="font-size:1rem;padding:14px 32px"
+    >
+      Browse Notes →
+    </button>
+    <button
+      onclick="openSignupModal()"
+      class="btn-ghost"
+      style="font-size:1rem;padding:14px 32px"
+    >
+      Start Free
+    </button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-number" id="stat-products">—</div>
+      <div class="hero-stat-label">Study Resources</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number">500+</div>
+      <div class="hero-stat-label">Students Served</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number">4.9★</div>
+      <div class="hero-stat-label">Average Rating</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number">∞</div>
+      <div class="hero-stat-label">Lifetime Access</div>
+    </div>
+  </div>
+</section>
+
+<!-- Products Section -->
+<section class="section" id="products">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Catalog</div>
+      <h2 class="section-title">Explore Assignment & Study Notes</h2>
+      <p class="section-subtitle">Find assignment notes, banking study material, exam preparation PDFs, and other useful educational resources.</p>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search notes, assignments, banking PDFs..." oninput="debounceSearch()">
+      <button onclick="searchProducts()">Search</button>
+    </div>
+
+    <div class="category-pills" id="category-pills">
+      <button class="pill active" onclick="filterCategory(null, this)">All</button>
+      <button class="pill" onclick="filterCategory('notes', this)">Notes</button>
+      <button class="pill" onclick="filterCategory('pdfs', this)">PDFs</button>
+      <button class="pill" onclick="filterCategory('banking', this)">Banking</button>
+      <button class="pill" onclick="filterCategory('assignments', this)">Assignments</button>
+      <button class="pill" onclick="filterCategory('exam-prep', this)">Exam Prep</button>
+    </div>
+      <div class="products-grid" id="products-grid">
+      <!-- Skeleton loaders shown while fetching -->
+      <div class="product-card"><div class="skeleton" style="width:100%;aspect-ratio:16/9"></div><div class="product-card-body"><div class="skeleton" style="height:18px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div><div class="skeleton" style="height:36px;width:90px;border-radius:100px;margin-top:10px"></div></div></div>
+      <div class="product-card"><div class="skeleton" style="width:100%;aspect-ratio:16/9"></div><div class="product-card-body"><div class="skeleton" style="height:18px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div><div class="skeleton" style="height:36px;width:90px;border-radius:100px;margin-top:10px"></div></div></div>
+      <div class="product-card"><div class="skeleton" style="width:100%;aspect-ratio:16/9"></div><div class="product-card-body"><div class="skeleton" style="height:18px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div><div class="skeleton" style="height:36px;width:90px;border-radius:100px;margin-top:10px"></div></div></div>
+    </div>
+
+    <div id="no-products" style="display:none;text-align:center;padding:60px 0;color:var(--text-muted)">
+      <div style="font-size:3rem;margin-bottom:16px">📭</div>
+      <p>No notes found. Try a different search.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Why Choose AIkors</div>
+      <h2 class="section-title">Everything You Need to Study</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(99,255,195,0.1)">⚡</div>
+        <h3 style="font-size:1.1rem;margin-bottom:10px">Instant Download</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem">Get your notes and study material immediately after successful payment.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(77,159,255,0.1)">🔐</div>
+        <h3 style="font-size:1.1rem;margin-bottom:10px">Secure Payments</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem">Powered by Razorpay — India's most trusted payment gateway. UPI, cards, netbanking.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(176,109,255,0.1)">♾️</div>
+        <h3 style="font-size:1.1rem;margin-bottom:10px">Lifetime Access</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem">Pay once and access your purchased notes whenever you need them.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(255,107,53,0.1)">🎯</div>
+        <h3 style="font-size:1.1rem;margin-bottom:10px">Useful Study Material</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem">Organized study resources designed to help with assignments, banking preparation, and exams.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="border-top:1px solid var(--border);padding:40px 0;text-align:center">
+  <div class="container">
+    <div class="nav-logo" style="display:inline-block;margin-bottom:12px">AIkors</div>
+    <p style="color:var(--text-muted);font-size:0.85rem">© 2026 AIkors. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  const BASE = window.location.origin;
+  let currentCategory = null;
+  let searchTimeout = null;
+
+  // ── Smooth scroll helpers (for nav links) ────────────────────────────────
+  function scrollToProducts(e) {
+    e.preventDefault();
+    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+  }
+  function scrollToFeatures(e) {
+    e.preventDefault();
+    document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Load Products ─────────────────────────────────────────────────────────
+  // FIXED: path is /products (API_BASE already has /api prefix in utils.js)
+  async function loadProducts(category, search) {
+    const grid = document.getElementById('products-grid');
+
+    let url = '/products?limit=24';
+    if (category) url += '&category=' + encodeURIComponent(category);
+    if (search && search.trim()) url += '&search=' + encodeURIComponent(search.trim());
+
+    try {
+      const response = await API.get(url);
+      const products = Array.isArray(response)
+        ? response
+        : (response?.products || response?.items || response?.data || []);
+      renderProducts(products);
+
+      const statEl = document.getElementById('stat-products');
+      if (statEl) statEl.textContent = products.length + '+';
+    } catch (err) {
+      console.error('loadProducts error:', err);
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:60px 0">
+          <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
+          <p>Failed to load products.</p>
+          <p style="font-size:0.85rem;margin-top:8px">Make sure the backend server is running on port 8000.</p>
+          <button onclick="loadProducts(currentCategory, document.getElementById('search-input').value)"
+            class="btn-ghost" style="margin-top:16px;padding:8px 24px;font-size:0.85rem">
+            Retry
+          </button>
+        </div>`;
+    }
+  }
+
+  // ── Render Products ───────────────────────────────────────────────────────
+  function renderProducts(products) {
+    const grid = document.getElementById('products-grid');
+    const noProducts = document.getElementById('no-products');
+
+    if (!products || !products.length) {
+      grid.innerHTML = '';
+      noProducts.style.display = 'block';
+      return;
+    }
+    noProducts.style.display = 'none';
+
+    grid.innerHTML = products.map(p => {
+      const discount = discountPercent(p.price, p.original_price);
+      const thumbnail = p.thumbnail_url
+        ? `<img src="${BASE}${p.thumbnail_url}" alt="${escapeHtml(p.title)}" class="product-card-img">`
+        : `<div class="product-card-img-placeholder">📚</div>`;
+
+      return `
+        <div class="product-card" onclick="goToProduct('${escapeJs(p.slug)}')"  style="cursor:pointer;position:relative">
+          ${thumbnail}
+          ${p.is_featured
+            ? `<div style="position:absolute;top:12px;right:12px;background:var(--neon-green);color:#080c14;
+                padding:3px 10px;border-radius:100px;font-size:0.7rem;font-weight:800;
+                font-family:var(--font-display);z-index:2">FEATURED</div>`
+            : ''}
+          <div class="product-card-body">
+            ${p.category ? `<div class="product-badge">${escapeHtml(p.category)}</div>` : ''}
+            <h3 class="product-title">${escapeHtml(p.title)}</h3>
+            <p class="product-desc">${escapeHtml(p.short_description || p.description || 'Quality assignment and study notes.')}</p>
+            <div class="product-footer">
+              <div class="product-price">
+                <span class="price-current">${formatPrice(p.price)}</span>
+                ${p.original_price ? `<span class="price-original">${formatPrice(p.original_price)}</span>` : ''}
+                ${discount ? `<span class="price-discount">${discount}% off</span>` : ''}
+              </div>
+              <button
+                class="btn-primary"
+                style="padding:9px 18px;font-size:0.82rem"
+                onclick="event.stopPropagation(); buyProduct('${escapeJs(p.slug)}')" 
+              >Buy Now</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Navigation helpers ────────────────────────────────────────────────────
+  function goToProduct(slug) {
+    window.location.href = '/product-page?slug=' + encodeURIComponent(slug);
+  }
+
+  function buyProduct(slug) {
+    if (!Auth.isLoggedIn()) {
+      Toast.info('Please login to purchase');
+      openLoginModal();
+      return;
+    }
+    window.location.href = '/product-page?slug=' + encodeURIComponent(slug);
+  }
+
+  // ── Category Filter ───────────────────────────────────────────────────────
+  function filterCategory(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    loadProducts(cat, document.getElementById('search-input').value);
+  }
+
+  // ── Search ────────────────────────────────────────────────────────────────
+  function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(searchProducts, 400);
+  }
+
+  function searchProducts() {
+    loadProducts(currentCategory, document.getElementById('search-input').value);
+  }
+
+  // Safely escape a slug before placing it inside an inline JavaScript string.
+  function escapeJs(str) {
+    return String(str ?? '')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\r/g, '\\r')
+      .replace(/\n/g, '\\n');
+  }
+
+  // ── XSS helper ───────────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // ── After login, refresh navbar ───────────────────────────────────────────
+  function onAuthSuccess() {
+    setupNavbar();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    loadProducts();
+  });
+  
+</script>
+</body>
+</html>

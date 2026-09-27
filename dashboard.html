@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — AIkors</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 0;
+      min-height: 100vh;
+      padding-top: 64px;
+    }
+    .sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 32px 16px;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+    }
+    .sidebar-user {
+      text-align: center;
+      padding: 20px 0 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .user-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--gradient-hero);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #080c14;
+      margin: 0 auto 12px;
+    }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .sidebar-nav li a:hover, .sidebar-nav li a.active {
+      background: rgba(99,255,195,0.08);
+      color: var(--neon-green);
+    }
+    .dashboard-main { padding: 36px; overflow-y: auto; }
+    .purchase-card {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      transition: var(--transition);
+      margin-bottom: 12px;
+    }
+    .purchase-card:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-card-hover);
+    }
+    .purchase-thumb {
+      width: 80px; height: 55px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, rgba(99,255,195,0.1), rgba(77,159,255,0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .order-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .order-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @media (max-width: 768px) {
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .dashboard-main { padding: 20px 16px; }
+      .purchase-card { grid-template-columns: 60px 1fr; }
+      .purchase-card .btn-primary { grid-column: 1/-1; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="nav-logo">AIkors</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/dashboard">My Courses</a></li>
+  </ul>
+  <div class="nav-actions" id="nav-actions"></div>
+</nav>
+
+<div id="toast-container"></div>
+
+<!-- Not logged in -->
+<div id="auth-required" style="display:none;text-align:center;padding:120px 24px">
+  <div style="font-size:4rem;margin-bottom:16px">🔐</div>
+  <h2>Login Required</h2>
+  <p style="color:var(--text-secondary);margin:12px 0 24px">Please login to access your dashboard.</p>
+  <button onclick="openLoginModal()" class="btn-primary">Login Now</button>
+</div>
+
+<div class="dashboard-layout" id="dashboard">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-initial">U</div>
+      <div style="font-weight:700;font-family:var(--font-display)" id="user-name">Loading...</div>
+      <div style="font-size:0.8rem;color:var(--text-muted)" id="user-email"></div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="showSection('purchases'); return false;" id="nav-purchases" class="active">📦 My Purchases</a></li>
+      <li><a href="#" onclick="showSection('orders'); return false;" id="nav-orders">🧾 Order History</a></li>
+      <li><a href="/">🛍️ Browse Store</a></li>
+      <li><a href="#" onclick="logout(); return false;">🚪 Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="dashboard-main">
+
+    <!-- Purchases Section -->
+    <div id="section-purchases">
+      <div style="margin-bottom:28px">
+        <h2 style="font-size:1.6rem;margin-bottom:6px">My Purchases</h2>
+        <p style="color:var(--text-secondary)">All your purchased products — ready to download.</p>
+      </div>
+      <div id="purchases-loading">
+        <div class="skeleton" style="height:90px;margin-bottom:12px"></div>
+        <div class="skeleton" style="height:90px;margin-bottom:12px"></div>
+        <div class="skeleton" style="height:90px;margin-bottom:12px"></div>
+      </div>
+      <div id="purchases-list"></div>
+      <div id="no-purchases" style="display:none;text-align:center;padding:60px 0">
+        <div style="font-size:3rem;margin-bottom:16px">🛒</div>
+        <h3>No purchases yet</h3>
+        <p style="color:var(--text-secondary);margin:8px 0 20px">Browse our store to find amazing courses and assets.</p>
+        <a href="/" class="btn-primary">Browse Store</a>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="section-orders" style="display:none">
+      <div style="margin-bottom:28px">
+        <h2 style="font-size:1.6rem;margin-bottom:6px">Order History</h2>
+        <p style="color:var(--text-secondary)">All your past orders and payment details.</p>
+      </div>
+      <div id="orders-loading">
+        <div class="skeleton" style="height:120px;margin-bottom:16px"></div>
+        <div class="skeleton" style="height:120px;margin-bottom:16px"></div>
+      </div>
+      <div id="orders-list"></div>
+      <div id="no-orders" style="display:none;text-align:center;padding:60px 0">
+        <div style="font-size:3rem;margin-bottom:16px">📭</div>
+        <p style="color:var(--text-secondary)">No orders found.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  const BASE = window.location.origin; // auto: http://localhost:8000
+
+  function checkAuth() {
+    if (!Auth.isLoggedIn()) {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('auth-required').style.display = 'block';
+      return false;
+    }
+    return true;
+  }
+
+  function showSection(name) {
+    document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+    document.getElementById('section-' + name).style.display = 'block';
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'orders') loadOrders();
+  }
+
+  function loadUserInfo() {
+    const user = Auth.getUser();
+    if (!user) return;
+    document.getElementById('user-initial').textContent = user.name.charAt(0).toUpperCase();
+    document.getElementById('user-name').textContent = user.name;
+    document.getElementById('user-email').textContent = user.email;
+  }
+
+  async function loadPurchases() {
+    try {
+      const orders = await API.get('/orders');
+      const paidOrders = orders.filter(o => o.status === 'paid');
+
+      document.getElementById('purchases-loading').style.display = 'none';
+
+      const purchased = [];
+      paidOrders.forEach(order => {
+        order.items.forEach(item => {
+          if (item.product) {
+            purchased.push({
+              product: item.product,
+              order_id: order.id,
+              purchased_at: order.created_at,
+              price_paid: item.price_at_purchase
+            });
+          }
+        });
+      });
+
+      if (!purchased.length) {
+        document.getElementById('no-purchases').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('purchases-list').innerHTML = purchased.map(p => {
+        const thumb = p.product.thumbnail_url
+          ? '<img src="' + BASE + p.product.thumbnail_url + '" alt="' + p.product.title + '" style="width:80px;height:55px;border-radius:var(--radius-sm);object-fit:cover">'
+          : '<div class="purchase-thumb">📚</div>';
+
+        return '<div class="purchase-card">' +
+          thumb +
+          '<div>' +
+            '<div style="font-weight:700;font-family:var(--font-display);margin-bottom:4px">' + p.product.title + '</div>' +
+            '<div style="font-size:0.82rem;color:var(--text-muted)">Purchased ' + formatDate(p.purchased_at) + ' · Paid ' + formatPrice(p.price_paid) + '</div>' +
+            (p.product.category ? '<span class="product-badge" style="margin-top:6px;display:inline-block">' + p.product.category + '</span>' : '') +
+          '</div>' +
+          '<button onclick="downloadProduct(' + p.product.id + ', \'' + (p.product.file_name || p.product.title).replace(/'/g, '') + '\')" class="btn-primary" style="padding:9px 18px;font-size:0.85rem;white-space:nowrap">⬇ Download</button>' +
+        '</div>';
+      }).join('');
+
+    } catch (err) {
+      document.getElementById('purchases-loading').style.display = 'none';
+      Toast.error('Failed to load purchases');
+    }
+  }
+
+  async function loadOrders() {
+    const list = document.getElementById('orders-list');
+    const loading = document.getElementById('orders-loading');
+
+    try {
+      const orders = await API.get('/orders');
+      loading.style.display = 'none';
+
+      if (!orders.length) {
+        document.getElementById('no-orders').style.display = 'block';
+        return;
+      }
+
+      const statusColors = { paid: 'badge-success', pending: 'badge-warning', failed: 'badge-danger', refunded: 'badge-info' };
+
+      list.innerHTML = orders.map(o => {
+        const items = o.items.map(item =>
+          '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)">' +
+            '<span style="font-size:1.2rem">📦</span>' +
+            '<span style="flex:1;font-size:0.9rem">' + (item.product ? item.product.title : 'Product #' + item.product_id) + '</span>' +
+            '<span style="color:var(--text-muted);font-size:0.85rem">' + formatPrice(item.price_at_purchase) + '</span>' +
+          '</div>'
+        ).join('');
+
+        return '<div class="order-card">' +
+          '<div class="order-header">' +
+            '<div>' +
+              '<div style="font-weight:700;font-family:var(--font-display)">Order #' + o.id + '</div>' +
+              '<div style="font-size:0.82rem;color:var(--text-muted)">' + formatDate(o.created_at) + '</div>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:12px">' +
+              '<span class="badge ' + (statusColors[o.status] || 'badge-info') + '">' + o.status.toUpperCase() + '</span>' +
+              '<span style="font-family:var(--font-display);font-weight:700;color:var(--neon-green)">' + formatPrice(o.total_amount) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="padding:12px 20px">' + items + '</div>' +
+          (o.razorpay_order_id ? '<div style="padding:8px 20px 12px;font-size:0.78rem;color:var(--text-muted)">Razorpay: ' + o.razorpay_order_id + '</div>' : '') +
+        '</div>';
+      }).join('');
+
+    } catch (err) {
+      loading.style.display = 'none';
+      Toast.error('Failed to load orders');
+    }
+  }
+
+  function downloadProduct(productId, fileName) {
+    const token = Auth.getToken();
+    const url = BASE + '/api/orders/download/' + productId;
+    Toast.info('Preparing download...');
+
+    fetch(url, { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(res => {
+        if (!res.ok) throw new Error('Download failed — make sure you purchased this product');
+        return res.blob();
+      })
+      .then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        Toast.success('Download started!');
+      })
+      .catch(err => Toast.error(err.message));
+  }
+
+  function onAuthSuccess() {
+    setupNavbar();
+    loadUserInfo();
+    loadPurchases();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!checkAuth()) return;
+    loadUserInfo();
+    loadPurchases();
+  });
+</script>
+</body>
+</html>
