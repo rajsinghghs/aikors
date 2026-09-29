@@ -5,179 +5,184 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIkors — Premium Assignment & Study Notes</title>
   <meta name="description" content="Discover and purchase quality assignment notes, banking notes, study PDFs, and educational resources. Instant delivery after payment.">
+  
   <link rel="stylesheet" href="css/main.css">
+  
+  <!-- GSAP for FAANG-level Animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
   <style>
+    /* ─── Page Specific Styles ─── */
     .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 80px 24px 60px;
-      position: relative;
-      z-index: 1;
+      position: relative; min-height: 90vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 140px 24px 60px; z-index: 1; overflow: hidden;
     }
+    
+    /* Glowing Orbs */
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; opacity: 0.6;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(59, 130, 246, 0.15); top: -10%; left: -10%; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(139, 92, 246, 0.15); bottom: 10%; right: -5%; }
+    
     .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      border-radius: 100px;
-      background: rgba(99,255,195,0.08);
-      border: 1px solid rgba(99,255,195,0.2);
-      font-size: 0.8rem;
-      font-weight: 700;
-      font-family: var(--font-display);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--neon-green);
-      margin-bottom: 32px;
+      display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px;
+      border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+      border: 1px solid rgba(59, 130, 246, 0.2); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 32px;
+      /* Visibility managed by GSAP */
     }
+    
     .hero-title {
-      font-size: clamp(2.8rem, 8vw, 5.5rem);
-      font-weight: 800;
-      line-height: 1.05;
-      margin-bottom: 24px;
+      font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.03em; margin-bottom: 24px; max-width: 900px;
     }
+    /* Wrapper for staggered text animation */
+    .hero-title-line { overflow: hidden; display: block; }
+    .hero-title-text { display: block; }
+    
     .hero-gradient-text {
-      background: var(--gradient-hero);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      background: linear-gradient(135deg, var(--accent), #8B5CF6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    
     .hero-subtitle {
-      font-size: 1.15rem;
-      color: var(--text-secondary);
-      max-width: 540px;
-      margin: 0 auto 40px;
-      line-height: 1.7;
+      font-size: 1.15rem; color: var(--text-secondary); max-width: 580px;
+      margin: 0 auto 40px; line-height: 1.6;
     }
-    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 64px; }
+    
     .hero-stats {
-      display: flex;
-      gap: 40px;
-      justify-content: center;
-      margin-top: 64px;
-      flex-wrap: wrap;
+      display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
+      padding-top: 32px; border-top: 1px solid var(--border);
     }
     .hero-stat { text-align: center; }
-    .hero-stat-number {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text-primary);
+    .hero-stat-number { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+    .hero-stat-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+    
+    /* Search & Categories */
+    .search-wrapper { max-width: 540px; margin: 0 auto 32px; position: relative; }
+    .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); pointer-events: none;
     }
-    .hero-stat-label { font-size: 0.85rem; color: var(--text-muted); }
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      animation: float 8s ease-in-out infinite;
+    .search-input {
+      width: 100%; height: 52px; padding: 0 20px 0 48px;
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 999px; font-size: 1rem; color: var(--text-primary);
+      box-shadow: var(--shadow-sm); transition: var(--transition);
     }
-    .orb-1 { width:400px;height:400px;background:rgba(99,255,195,0.08);top:10%;left:5%;animation-delay:0s; }
-    .orb-2 { width:300px;height:300px;background:rgba(77,159,255,0.08);top:20%;right:10%;animation-delay:-3s; }
-    .orb-3 { width:250px;height:250px;background:rgba(176,109,255,0.06);bottom:10%;left:40%;animation-delay:-6s; }
-    @keyframes float {
-      0%,100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-30px) scale(1.05); }
-    }
-    .category-pills { display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px; }
+    .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    
+    .category-pills { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 48px; }
     .pill {
-      padding: 8px 20px;
-      border-radius: 100px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      font-family: var(--font-display);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: var(--transition);
+      padding: 8px 20px; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+      background: var(--bg-surface); border: 1px solid var(--border);
+      color: var(--text-secondary); cursor: pointer; transition: var(--transition);
+      box-shadow: var(--shadow-sm);
     }
-    .pill:hover, .pill.active {
-      background: rgba(99,255,195,0.1);
-      border-color: rgba(99,255,195,0.3);
-      color: var(--neon-green);
+    .pill:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+    .pill.active { background: var(--primary); color: var(--on-primary); border-color: var(--primary); box-shadow: var(--shadow-md); }
+    
+    /* Products Grid */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .product-card-img-placeholder {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      background: var(--bg-surface-hover); color: var(--text-muted);
     }
-    .search-bar {
-      display: flex;
-      max-width: 500px;
-      margin: 0 auto 40px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      overflow: hidden;
-      transition: var(--transition);
-    }
-    .search-bar:focus-within {
-      border-color: var(--neon-green);
-      box-shadow: 0 0 0 3px rgba(99,255,195,0.08);
-    }
-    .search-bar input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      padding: 14px 20px;
-      color: var(--text-primary);
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-    }
-    .search-bar input::placeholder { color: var(--text-muted); }
-    .search-bar button {
-      padding: 10px 20px;
-      margin: 6px;
-      background: var(--neon-green);
-      color: #080c14;
-      border-radius: 100px;
-      font-weight: 700;
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      cursor: pointer;
-      border: none;
-    }
-    .features-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px; }
+    .product-card-img { width: 100%; height: 100%; object-fit: cover; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+    
+    /* Features / Why Us Section */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
     .feature-card {
-      padding: 32px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      transition: var(--transition);
+      padding: 32px; background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); transition: border-color var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-sm);
+      will-change: transform, opacity; /* performance optimization */
     }
-    .feature-card:hover { border-color:var(--border-hover);background:var(--bg-card-hover); }
+    .feature-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
     .feature-icon {
-      width: 48px;height: 48px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 16px;
+      width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; color: var(--accent); background: var(--accent-soft);
     }
-    .skeleton {
-      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 8px;
+    
+    .empty-state {
+      text-align: center; padding: 80px 20px; color: var(--text-secondary);
+      background: var(--bg-surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg);
     }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+
+    /* ─── Responsive Header & Mobile Menu (SLIDE-IN FIX) ─── */
+    .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 8px; z-index: 2001; }
+    .nav-menu-wrapper { display: flex; align-items: center; justify-content: space-between; flex: 1; margin-left: 32px; }
+    
+    @media (max-width: 820px) {
+      .mobile-menu-btn { display: flex; align-items: center; justify-content: center; position: relative; }
+      
+      .nav-menu-wrapper {
+        position: fixed; 
+        top: var(--nav-h); 
+        right: 0; 
+        width: 100%;
+        height: calc(100vh - var(--nav-h));
+        background: var(--bg-surface);
+        padding: 32px 24px; 
+        flex-direction: column; 
+        align-items: flex-start;
+        z-index: 2000;
+        
+        /* Smooth Slide-in Animation */
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex; /* Always display flex, hide using transform */
+      }
+
+      .nav-menu-wrapper.active {
+        transform: translateX(0); /* Slide in */
+      }
+      
+      /* Mobile Links Styling */
+      .nav-links { flex-direction: column; width: 100%; gap: 0; margin-bottom: 32px; }
+      .nav-links li { width: 100%; }
+      .nav-links a { 
+        display: block; width: 100%; padding: 16px 0; 
+        font-size: 1.25rem; font-weight: 600; 
+        border-bottom: 1px solid var(--border);
+      }
+      
+      /* Mobile Actions Styling */
+      .nav-actions { flex-direction: column; width: 100%; align-items: stretch; gap: 16px; margin-left: 0; }
+      .nav-actions > div { flex-direction: column; align-items: stretch !important; gap: 16px; }
+      .nav-actions button, .nav-actions a { width: 100%; height: 52px; justify-content: center; font-size: 1.05rem; }
     }
   </style>
 </head>
 <body>
 
 <nav class="navbar">
-  <a href="/" class="nav-logo">AIkors</a>
-  <ul class="nav-links">
-    <li><a href="#products" onclick="scrollToProducts(event)">Notes</a></li>
-    <li><a href="#features" onclick="scrollToFeatures(event)">Why Us</a></li>
-    <li><a href="/dashboard">Dashboard</a></li>
-  </ul>
-  <div class="nav-actions" id="nav-actions"></div>
+  <a href="/" class="nav-logo">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+    AIkors
+  </a>
+
+  <!-- Mobile Toggle Button -->
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+    <svg id="menu-icon-open" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    <svg id="menu-icon-close" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </button>
+
+  <div class="nav-menu-wrapper" id="nav-menu-wrapper">
+    <ul class="nav-links">
+      <li><a href="#products" onclick="scrollToProducts(event)">Notes</a></li>
+      <li><a href="#features" onclick="scrollToFeatures(event)">Why Us</a></li>
+    </ul>
+    <div class="nav-actions" id="nav-actions"></div>
+  </div>
 </nav>
 
 <div id="toast-container"></div>
@@ -185,54 +190,42 @@
 <section class="hero">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-
-  <div class="hero-eyebrow"><span>⚡</span><span>Premium Study Resources</span></div>
-
+  
+  <div class="hero-eyebrow">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+    Premium Study Resources
+  </div>
+  
   <h1 class="hero-title">
-    Study Smarter With<br>
-    <span class="hero-gradient-text">Assignment & Study Notes</span>
+    <div class="hero-title-line"><span class="hero-title-text">Study Smarter With</span></div>
+    <div class="hero-title-line"><span class="hero-title-text hero-gradient-text">Assignment & Notes</span></div>
   </h1>
-
+  
   <p class="hero-subtitle">
-    Instant access to assignment notes, banking study material, PDFs, and educational resources.
-    Pay once, download instantly. Simple, affordable, and ready to study.
+    Instant access to top-tier assignment notes, banking study material, PDFs, and educational resources. Simple, affordable, and ready to download.
   </p>
-
+  
   <div class="hero-actions">
-    <!-- FIXED: Inline onclick with proper scroll behavior -->
-    <button
-      onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})"
-      class="btn-primary"
-      style="font-size:1rem;padding:14px 32px"
-    >
-      Browse Notes →
+    <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="btn-primary" style="height: 48px; padding: 0 32px; font-size: 1rem;">
+      Browse Catalog
     </button>
-    <button
-      onclick="openSignupModal()"
-      class="btn-ghost"
-      style="font-size:1rem;padding:14px 32px"
-    >
+    <button onclick="openSignupModal()" class="btn-ghost" style="height: 48px; padding: 0 32px; font-size: 1rem;">
       Start Free
     </button>
   </div>
-
+  
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-number" id="stat-products">—</div>
-      <div class="hero-stat-label">Study Resources</div>
+      <div class="hero-stat-label">Resources</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-number">500+</div>
-      <div class="hero-stat-label">Students Served</div>
+      <div class="hero-stat-label">Students</div>
     </div>
     <div class="hero-stat">
-      <div class="hero-stat-number">4.9★</div>
+      <div class="hero-stat-number">4.9/5</div>
       <div class="hero-stat-label">Average Rating</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-number">∞</div>
-      <div class="hero-stat-label">Lifetime Access</div>
     </div>
   </div>
 </section>
@@ -241,16 +234,15 @@
 <section class="section" id="products">
   <div class="container">
     <div class="section-header">
-      <div class="section-eyebrow">Catalog</div>
-      <h2 class="section-title">Explore Assignment & Study Notes</h2>
-      <p class="section-subtitle">Find assignment notes, banking study material, exam preparation PDFs, and other useful educational resources.</p>
+      <h2 class="section-title">Explore Catalog</h2>
+      <p class="section-subtitle">Find exact study materials to accelerate your exam preparation.</p>
     </div>
-
-    <div class="search-bar">
-      <input type="text" id="search-input" placeholder="Search notes, assignments, banking PDFs..." oninput="debounceSearch()">
-      <button onclick="searchProducts()">Search</button>
+    
+    <div class="search-wrapper">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" class="search-input" id="search-input" placeholder="Search notes, assignments, banking PDFs..." oninput="debounceSearch()">
     </div>
-
+    
     <div class="category-pills" id="category-pills">
       <button class="pill active" onclick="filterCategory(null, this)">All</button>
       <button class="pill" onclick="filterCategory('notes', this)">Notes</button>
@@ -259,56 +251,70 @@
       <button class="pill" onclick="filterCategory('assignments', this)">Assignments</button>
       <button class="pill" onclick="filterCategory('exam-prep', this)">Exam Prep</button>
     </div>
-      <div class="products-grid" id="products-grid">
-      <!-- Skeleton loaders shown while fetching -->
-      <div class="product-card"><div class="skeleton" style="width:100%;aspect-ratio:16/9"></div><div class="product-card-body"><div class="skeleton" style="height:18px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div><div class="skeleton" style="height:36px;width:90px;border-radius:100px;margin-top:10px"></div></div></div>
-      <div class="product-card"><div class="skeleton" style="width:100%;aspect-ratio:16/9"></div><div class="product-card-body"><div class="skeleton" style="height:18px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div><div class="skeleton" style="height:36px;width:90px;border-radius:100px;margin-top:10px"></div></div></div>
-      <div class="product-card"><div class="skeleton" style="width:100%;aspect-ratio:16/9"></div><div class="product-card-body"><div class="skeleton" style="height:18px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:6px"></div><div class="skeleton" style="height:36px;width:90px;border-radius:100px;margin-top:10px"></div></div></div>
+    
+    <div class="products-grid" id="products-grid">
+      <script>document.write(Array(3).fill(typeof productSkeleton !== 'undefined' ? productSkeleton() : '').join(''));</script>
     </div>
-
-    <div id="no-products" style="display:none;text-align:center;padding:60px 0;color:var(--text-muted)">
-      <div style="font-size:3rem;margin-bottom:16px">📭</div>
-      <p>No notes found. Try a different search.</p>
+    
+    <div id="no-products" class="empty-state" style="display:none;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px; opacity:0.5;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <h3 style="font-size: 1.25rem; margin-bottom: 8px;">No resources found</h3>
+      <p>We couldn't find any notes matching your search criteria.</p>
     </div>
   </div>
 </section>
 
-<!-- Features -->
-<section class="section" id="features">
+<!-- Features Section (GSAP Pinning Enabled) -->
+<section class="section" id="features" style="background: var(--bg-surface-hover); border-top: 1px solid var(--border); overflow: hidden;">
   <div class="container">
     <div class="section-header">
-      <div class="section-eyebrow">Why Choose AIkors</div>
-      <h2 class="section-title">Everything You Need to Study</h2>
+      <h2 class="section-title">Why Choose AIkors</h2>
+      <p class="section-subtitle">Everything you need to excel in your studies, built into one seamless platform.</p>
     </div>
+    
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon" style="background:rgba(99,255,195,0.1)">⚡</div>
-        <h3 style="font-size:1.1rem;margin-bottom:10px">Instant Download</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem">Get your notes and study material immediately after successful payment.</p>
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </div>
+        <h3 style="font-size:1.1rem; margin-bottom:8px">Instant Download</h3>
+        <p style="color:var(--text-secondary); font-size:0.9rem">Get your notes immediately after successful payment. No waiting.</p>
       </div>
+      
       <div class="feature-card">
-        <div class="feature-icon" style="background:rgba(77,159,255,0.1)">🔐</div>
-        <h3 style="font-size:1.1rem;margin-bottom:10px">Secure Payments</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem">Powered by Razorpay — India's most trusted payment gateway. UPI, cards, netbanking.</p>
+        <div class="feature-icon" style="color: #10B981; background: rgba(16, 185, 129, 0.1);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h3 style="font-size:1.1rem; margin-bottom:8px">Secure Payments</h3>
+        <p style="color:var(--text-secondary); font-size:0.9rem">Powered by Razorpay. Supports UPI, Cards, and Netbanking securely.</p>
       </div>
+      
       <div class="feature-card">
-        <div class="feature-icon" style="background:rgba(176,109,255,0.1)">♾️</div>
-        <h3 style="font-size:1.1rem;margin-bottom:10px">Lifetime Access</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem">Pay once and access your purchased notes whenever you need them.</p>
+        <div class="feature-icon" style="color: #F59E0B; background: rgba(245, 158, 11, 0.1);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <h3 style="font-size:1.1rem; margin-bottom:8px">Lifetime Access</h3>
+        <p style="color:var(--text-secondary); font-size:0.9rem">Pay once and securely access your purchased resources from your dashboard forever.</p>
       </div>
+      
       <div class="feature-card">
-        <div class="feature-icon" style="background:rgba(255,107,53,0.1)">🎯</div>
-        <h3 style="font-size:1.1rem;margin-bottom:10px">Useful Study Material</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem">Organized study resources designed to help with assignments, banking preparation, and exams.</p>
+        <div class="feature-icon" style="color: #EC4899; background: rgba(236, 72, 153, 0.1);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        </div>
+        <h3 style="font-size:1.1rem; margin-bottom:8px">Curated Material</h3>
+        <p style="color:var(--text-secondary); font-size:0.9rem">Organized and verified study resources designed specifically for top-grade results.</p>
       </div>
     </div>
   </div>
 </section>
 
-<footer style="border-top:1px solid var(--border);padding:40px 0;text-align:center">
+<footer style="border-top: 1px solid var(--border); padding: 48px 0; text-align: center; background: var(--bg-surface);">
   <div class="container">
-    <div class="nav-logo" style="display:inline-block;margin-bottom:12px">AIkors</div>
-    <p style="color:var(--text-muted);font-size:0.85rem">© 2026 AIkors. All rights reserved.</p>
+    <div class="nav-logo" style="justify-content: center; margin-bottom: 16px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+      AIkors
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">© 2026 AIkors. All rights reserved.</p>
   </div>
 </footer>
 
@@ -319,158 +325,212 @@
   let currentCategory = null;
   let searchTimeout = null;
 
-  // ── Smooth scroll helpers (for nav links) ────────────────────────────────
+  // ── GSAP FAANG ANIMATIONS ───────────────────────────────────────────────────
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initGSAP() {
+    // 1. Hero Orbs Floating Effect
+    gsap.to(".orb-1", { x: 50, y: 30, duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut" });
+    gsap.to(".orb-2", { x: -40, y: -40, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 1 });
+
+    // 2. Hero Staggered Text Reveal
+    const tl = gsap.timeline();
+    tl.fromTo(".hero-eyebrow", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })
+      .fromTo(".hero-title-text", { y: "100%" }, { y: "0%", duration: 0.8, stagger: 0.15, ease: "back.out(1.5)" }, "-=0.4")
+      .fromTo(".hero-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "-=0.6")
+      .fromTo(".hero-actions", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, "-=0.6")
+      .fromTo(".hero-stats", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, "-=0.4");
+
+    // 3. 'Why Us' Section Scroll Hold (Pinning & Scrub)
+    ScrollTrigger.matchMedia({
+      // Desktop - Pin and hold scroll
+      "(min-width: 821px)": function() {
+        gsap.fromTo(".feature-card", 
+          { opacity: 0, y: 100 },
+          {
+            opacity: 1, y: 0, stagger: 0.2, ease: "power2.out",
+            scrollTrigger: {
+              trigger: "#features",
+              start: "top top",
+              end: "+=1200", // Holds scroll for 1200px
+              pin: true,     // This is what holds the page
+              scrub: 1       // Ties animation to scrollbar
+            }
+          }
+        );
+      },
+      // Mobile - Just fade in normally (pinning on mobile ruins UX)
+      "(max-width: 820px)": function() {
+        gsap.fromTo(".feature-card", 
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out",
+            scrollTrigger: { trigger: "#features", start: "top 80%" }
+          }
+        );
+      }
+    });
+  }
+
+  // ── MOBILE MENU LOGIC (SLIDE-IN FIX) ──────────────────────────────────────
+  const menuWrapper = document.getElementById('nav-menu-wrapper');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+
+  function toggleMobileMenu() {
+    const isActive = menuWrapper.classList.contains('active');
+    if (isActive) {
+      closeMobileMenu();
+    } else {
+      menuWrapper.classList.add('active');
+      iconOpen.style.display = 'none';
+      iconClose.style.display = 'block';
+      document.body.style.overflow = 'hidden'; // Stop background scrolling
+    }
+  }
+
+  function closeMobileMenu() {
+    if(window.innerWidth > 820) return; // Prevent breaking desktop
+    menuWrapper.classList.remove('active');
+    iconOpen.style.display = 'block';
+    iconClose.style.display = 'none';
+    document.body.style.overflow = ''; // Restore background scrolling
+  }
+
   function scrollToProducts(e) {
     e.preventDefault();
+    closeMobileMenu();
     document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
   }
   function scrollToFeatures(e) {
     e.preventDefault();
+    closeMobileMenu();
     document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ── Load Products ─────────────────────────────────────────────────────────
-  // FIXED: path is /products (API_BASE already has /api prefix in utils.js)
+  // Handle Resize Fix
+  window.addEventListener('resize', () => {
+    if(window.innerWidth > 820) {
+      menuWrapper.classList.remove('active');
+      document.body.style.overflow = '';
+      iconOpen.style.display = 'block';
+      iconClose.style.display = 'none';
+    }
+  });
+
+  // ── FETCH & RENDER LOGIC (No Skips) ───────────────────────────────────────
   async function loadProducts(category, search) {
     const grid = document.getElementById('products-grid');
-
+    grid.innerHTML = Array(4).fill(typeof productSkeleton !== 'undefined' ? productSkeleton() : '').join('');
+    
     let url = '/products?limit=24';
     if (category) url += '&category=' + encodeURIComponent(category);
     if (search && search.trim()) url += '&search=' + encodeURIComponent(search.trim());
-
+    
     try {
       const response = await API.get(url);
-      const products = Array.isArray(response)
-        ? response
-        : (response?.products || response?.items || response?.data || []);
+      const products = Array.isArray(response) ? response : (response?.products || response?.items || response?.data || []);
       renderProducts(products);
-
+      
       const statEl = document.getElementById('stat-products');
-      if (statEl) statEl.textContent = products.length + '+';
+      if (statEl) statEl.textContent = products.length > 0 ? products.length + '+' : '0';
     } catch (err) {
-      console.error('loadProducts error:', err);
       grid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:60px 0">
-          <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
-          <p>Failed to load products.</p>
-          <p style="font-size:0.85rem;margin-top:8px">Make sure the backend server is running on port 8000.</p>
-          <button onclick="loadProducts(currentCategory, document.getElementById('search-input').value)"
-            class="btn-ghost" style="margin-top:16px;padding:8px 24px;font-size:0.85rem">
-            Retry
-          </button>
+        <div class="empty-state" style="grid-column:1/-1;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px; color:var(--danger);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Failed to load catalog</h3>
+          <p style="margin-bottom: 16px;">Make sure the backend server is running correctly.</p>
+          <button onclick="loadProducts(currentCategory, document.getElementById('search-input').value)" class="btn-ghost">Try Again</button>
         </div>`;
     }
   }
 
-  // ── Render Products ───────────────────────────────────────────────────────
   function renderProducts(products) {
     const grid = document.getElementById('products-grid');
     const noProducts = document.getElementById('no-products');
-
+    
     if (!products || !products.length) {
       grid.innerHTML = '';
       noProducts.style.display = 'block';
       return;
     }
+    
     noProducts.style.display = 'none';
-
     grid.innerHTML = products.map(p => {
-      const discount = discountPercent(p.price, p.original_price);
+      const discount = typeof discountPercent !== 'undefined' ? discountPercent(p.price, p.original_price) : null;
+      const placeholderIcon = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
       const thumbnail = p.thumbnail_url
-        ? `<img src="${BASE}${p.thumbnail_url}" alt="${escapeHtml(p.title)}" class="product-card-img">`
-        : `<div class="product-card-img-placeholder">📚</div>`;
-
+        ? `<img src="${BASE}${p.thumbnail_url}" alt="${escapeHtml(p.title)}" class="product-card-img" loading="lazy">`
+        : `<div class="product-card-img-placeholder">${placeholderIcon}</div>`;
+        
       return `
-        <div class="product-card" onclick="goToProduct('${escapeJs(p.slug)}')"  style="cursor:pointer;position:relative">
-          ${thumbnail}
-          ${p.is_featured
-            ? `<div style="position:absolute;top:12px;right:12px;background:var(--neon-green);color:#080c14;
-                padding:3px 10px;border-radius:100px;font-size:0.7rem;font-weight:800;
-                font-family:var(--font-display);z-index:2">FEATURED</div>`
-            : ''}
-          <div class="product-card-body">
-            ${p.category ? `<div class="product-badge">${escapeHtml(p.category)}</div>` : ''}
-            <h3 class="product-title">${escapeHtml(p.title)}</h3>
-            <p class="product-desc">${escapeHtml(p.short_description || p.description || 'Quality assignment and study notes.')}</p>
+        <div class="product-card" onclick="goToProduct('${escapeJs(p.slug)}')" style="cursor:pointer; display:flex; flex-direction:column; opacity:0; transform:translateY(20px);">
+          <div style="position:relative; width:100%; aspect-ratio: 16/10; overflow:hidden; border-bottom:1px solid var(--border);">
+            ${thumbnail}
+            ${p.is_featured ? `<div style="position:absolute; top:12px; right:12px; background:var(--primary); color:var(--on-primary); padding:4px 10px; border-radius:999px; font-size:0.7rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; z-index:2; box-shadow:var(--shadow-sm);">Featured</div>` : ''}
+          </div>
+          <div class="product-card-body" style="flex:1;">
+            ${p.category ? `<span class="badge badge-info" style="margin-bottom:8px; align-self:flex-start;">${escapeHtml(p.category)}</span>` : ''}
+            <h3 class="product-title" style="margin-bottom:6px; line-height:1.3;">${escapeHtml(p.title)}</h3>
+            <p class="product-desc" style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+              ${escapeHtml(p.short_description || p.description || 'Premium quality study notes and assignments.')}
+            </p>
             <div class="product-footer">
-              <div class="product-price">
-                <span class="price-current">${formatPrice(p.price)}</span>
-                ${p.original_price ? `<span class="price-original">${formatPrice(p.original_price)}</span>` : ''}
-                ${discount ? `<span class="price-discount">${discount}% off</span>` : ''}
+              <div style="display:flex; flex-direction:column;">
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                  <span class="product-price">${typeof formatPrice !== 'undefined' ? formatPrice(p.price) : '₹'+p.price}</span>
+                  ${p.original_price ? `<span style="text-decoration:line-through; color:var(--text-muted); font-size:0.85rem;">${typeof formatPrice !== 'undefined' ? formatPrice(p.original_price) : '₹'+p.original_price}</span>` : ''}
+                </div>
+                ${discount ? `<span style="color:var(--success); font-size:0.75rem; font-weight:600;">Save ${discount}%</span>` : ''}
               </div>
-              <button
-                class="btn-primary"
-                style="padding:9px 18px;font-size:0.82rem"
-                onclick="event.stopPropagation(); buyProduct('${escapeJs(p.slug)}')" 
-              >Buy Now</button>
+              <button class="btn-primary" style="height:36px; padding:0 16px; font-size:0.85rem;" onclick="event.stopPropagation(); buyProduct('${escapeJs(p.slug)}')">Buy Now</button>
             </div>
           </div>
         </div>`;
     }).join('');
+
+    // Animate products rendering
+    gsap.to(".product-card", { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out", delay: 0.1 });
   }
 
-  // ── Navigation helpers ────────────────────────────────────────────────────
-  function goToProduct(slug) {
-    window.location.href = '/product-page?slug=' + encodeURIComponent(slug);
-  }
-
+  // Navigation Logic
+  function goToProduct(slug) { window.location.href = '/product-page?slug=' + encodeURIComponent(slug); }
   function buyProduct(slug) {
-    if (!Auth.isLoggedIn()) {
-      Toast.info('Please login to purchase');
+    if (typeof Auth !== 'undefined' && !Auth.isLoggedIn()) {
+      Toast.info('Please log in to purchase securely.');
       openLoginModal();
       return;
     }
     window.location.href = '/product-page?slug=' + encodeURIComponent(slug);
   }
 
-  // ── Category Filter ───────────────────────────────────────────────────────
+  // Filter & Search Logic
   function filterCategory(cat, btn) {
     currentCategory = cat;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     loadProducts(cat, document.getElementById('search-input').value);
   }
-
-  // ── Search ────────────────────────────────────────────────────────────────
   function debounceSearch() {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(searchProducts, 400);
+    searchTimeout = setTimeout(() => { loadProducts(currentCategory, document.getElementById('search-input').value); }, 400);
   }
 
-  function searchProducts() {
-    loadProducts(currentCategory, document.getElementById('search-input').value);
-  }
-
-  // Safely escape a slug before placing it inside an inline JavaScript string.
-  function escapeJs(str) {
-    return String(str ?? '')
-      .replace(/\\/g, '\\\\')
-      .replace(/'/g, "\\'")
-      .replace(/\r/g, '\\r')
-      .replace(/\n/g, '\\n');
-  }
-
-  // ── XSS helper ───────────────────────────────────────────────────────────
+  function escapeJs(str) { return String(str ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r/g, '\\r').replace(/\n/g, '\\n'); }
   function escapeHtml(str) {
     if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // ── After login, refresh navbar ───────────────────────────────────────────
   function onAuthSuccess() {
+    closeMobileMenu();
     setupNavbar();
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
+    initGSAP(); // Start animations immediately
     loadProducts();
   });
-  
 </script>
 </body>
 </html>
