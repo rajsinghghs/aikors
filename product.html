@@ -284,7 +284,8 @@
         description: currentProduct.title,
         order_id: orderData.razorpay_order_id,
         prefill: { name: user.name, email: user.email },
-        theme: { color: '#63ffc3' },
+        hidden:{contact:true , email:true},
+        theme: { color: '#8b8df8' },
         handler: async (response) => {
           await verifyPayment(response, orderData.order_id);
         },
