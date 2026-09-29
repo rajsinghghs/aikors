@@ -11,19 +11,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { background-color: var(--bg-base); }
+    body { background-color: var(--bg-base); margin: 0; }
     
     .admin-layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
     
     /* Sidebar */
-    .admin-sidebar { background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; z-index: 100; }
-    .admin-brand { padding: 8px 12px 24px; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--text-primary); border-bottom: 1px solid var(--border); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
-    .admin-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .admin-sidebar { background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .admin-brand { padding: 8px 12px 24px; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--text-primary); border-bottom: 1px solid var(--border); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+    .brand-logo { display: flex; align-items: center; gap: 8px; }
+    .admin-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; flex: 1; margin: 0; padding: 0; }
     .admin-nav a { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-md); color: var(--text-secondary); font-size: 0.95rem; font-weight: 500; transition: var(--transition); text-decoration: none; cursor: pointer; }
     .admin-nav a svg { width: 18px; height: 18px; opacity: 0.7; }
     .admin-nav a:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
     .admin-nav a.active { background: var(--primary); color: var(--on-primary); font-weight: 600; box-shadow: var(--shadow-sm); }
     .admin-nav a.active svg { opacity: 1; color: var(--on-primary); }
+    
+    /* Mobile Overlay & Header */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 90; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s; }
+    .sidebar-overlay.open { display: block; opacity: 1; }
+    .mobile-header { display: none; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .close-sidebar-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 4px; }
 
     /* Main Area */
     .admin-main { padding: 40px; overflow-y: auto; }
@@ -35,14 +42,29 @@
     .stat-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
     .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600; }
     .stat-value { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
-    .chart-container { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 40px; height: 300px; }
+    .chart-container { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 40px; height: 320px; }
+
+    /* Controls (Search & Add) */
+    .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .search-input { min-width: 260px; padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); font-size: 0.9rem; transition: var(--transition); }
+    .search-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
     /* Tables */
     .table-wrap { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto; box-shadow: var(--shadow-sm); }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .data-table th { padding: 14px 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); background: var(--bg-surface-hover); border-bottom: 1px solid var(--border); }
-    .data-table td { padding: 16px 20px; font-size: 0.9rem; color: var(--text-primary); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table th { padding: 14px 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); background: var(--bg-surface-hover); border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; transition: background 0.2s; }
+    .data-table th:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
+    .data-table td { padding: 16px 20px; font-size: 0.9rem; color: var(--text-primary); border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
     .data-table tbody tr:last-child td { border-bottom: none; }
+    .sort-icon { display: inline-block; margin-left: 6px; font-size: 0.8rem; color: var(--primary); }
+
+    /* Pagination */
+    .pagination { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--bg-surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    .page-info { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
+    .page-btns { display: flex; gap: 8px; }
+    .page-btn { padding: 6px 14px; font-size: 0.85rem; border: 1px solid var(--border); background: var(--bg-base); color: var(--text-primary); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); font-weight: 500; }
+    .page-btn:hover:not(:disabled) { background: var(--bg-surface-hover); border-color: var(--border-strong); }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     
     .action-btns { display: flex; gap: 6px; }
     .btn-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-secondary); transition: var(--transition); cursor: pointer; }
@@ -50,18 +72,26 @@
     .btn-icon.danger:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-bg); }
     .btn-icon.success:hover { color: var(--success); border-color: var(--success); background: var(--success-bg); }
 
-    /* Modals & Previews */
+    /* Modals */
     .modal-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity var(--transition); }
     .modal-overlay.open { display: flex; opacity: 1; }
     .modal-box { width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-modal); position: relative; }
     .image-preview { width: 100%; height: 160px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border); display: none; margin-bottom: 12px; }
 
-    /* Mobile */
+    /* Responsive adjustments */
     @media (max-width: 900px) {
       .admin-layout { grid-template-columns: 1fr; }
-      .admin-sidebar { position: fixed; transform: translateX(-100%); transition: transform 0.3s; }
+      .admin-sidebar { position: fixed; transform: translateX(-100%); width: 280px; box-shadow: 4px 0 24px rgba(0,0,0,0.1); }
       .admin-sidebar.open { transform: translateX(0); }
       .admin-main { padding: 20px 16px; }
+      .mobile-header { display: flex; }
+      .close-sidebar-btn { display: block; }
+      .chart-container { height: 260px; padding: 16px; }
+      .table-controls { flex-direction: column; align-items: stretch; }
+      .search-input { width: 100%; }
+    }
+    @media (min-width: 901px) {
+      .sidebar-overlay { display: none !important; }
     }
   </style>
 </head>
@@ -78,12 +108,19 @@
   <button onclick="window.location.href='/'" class="btn-primary">Return Home</button>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
 <div class="admin-layout" id="admin-layout" style="display:none;">
 
   <aside class="admin-sidebar" id="admin-sidebar">
     <div class="admin-brand">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--accent)"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
-      Admin Panel
+      <div class="brand-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--accent)"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+        Admin Panel
+      </div>
+      <button class="close-sidebar-btn" onclick="toggleSidebar()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
     <nav class="admin-nav">
       <a onclick="showPanel('dashboard', this)" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg> Dashboard</a>
@@ -91,7 +128,7 @@
       <a onclick="showPanel('orders', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Orders</a>
       <a onclick="showPanel('users', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Users</a>
     </nav>
-    <div style="margin-top: auto;">
+    <div style="margin-top: auto; padding-top: 24px;">
       <a href="/" class="btn-ghost" style="width: 100%; justify-content:center; margin-bottom: 8px;">View Store</a>
       <button onclick="logout()" class="btn-ghost" style="width: 100%; justify-content:center; color:var(--danger); border-color:transparent;">Logout</button>
     </div>
@@ -99,9 +136,17 @@
 
   <main class="admin-main">
     
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <button onclick="toggleSidebar()" class="btn-icon" style="width:40px; height:40px; background:var(--bg-surface-hover);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <h2 style="font-size:1.5rem; margin:0;">Dashboard</h2>
+    </div>
+
     <!-- DASHBOARD PANEL -->
     <div id="panel-dashboard" class="panel active">
-      <h2 style="font-size:1.8rem; margin-bottom:24px; letter-spacing:-0.02em;">Overview</h2>
+      <h2 style="font-size:1.8rem; margin-bottom:24px; letter-spacing:-0.02em; display: none;" class="desktop-title">Overview</h2>
       <div class="stats-grid" id="stats-grid">
         <div class="stat-card"><div class="stat-header"><span>Revenue</span></div><div class="stat-value" id="stat-revenue">₹0</div></div>
         <div class="stat-card"><div class="stat-header"><span>Paid Orders</span></div><div class="stat-value" id="stat-orders">0</div></div>
@@ -115,7 +160,7 @@
       </div>
 
       <h3 style="margin-bottom:16px; font-size:1.1rem;">Recent Orders</h3>
-      <div class="table-wrap">
+      <div class="table-wrap" style="border-radius: var(--radius-lg);">
         <table class="data-table">
           <thead><tr><th>Order ID</th><th>User</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
           <tbody id="recent-orders-body"><tr><td colspan="5" style="text-align:center;">Loading...</td></tr></tbody>
@@ -125,38 +170,78 @@
 
     <!-- PRODUCTS PANEL -->
     <div id="panel-products" class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-        <h2 style="font-size:1.8rem;">Products</h2>
-        <button onclick="openProductForm(null)" class="btn-primary">Add Product</button>
+      <div class="table-controls">
+        <h2 style="font-size:1.8rem; margin:0;">Products</h2>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <input type="text" class="search-input" placeholder="Search title or category..." oninput="handleSearch('products', this.value)">
+          <button onclick="openProductForm(null)" class="btn-primary">Add Product</button>
+        </div>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: none;">
         <table class="data-table">
-          <thead><tr><th>Product</th><th>Price</th><th>Category</th><th>Sales</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr>
+              <th onclick="handleSort('products', 'title')">Product <span class="sort-icon" id="sort-products-title"></span></th>
+              <th onclick="handleSort('products', 'price')">Price <span class="sort-icon" id="sort-products-price"></span></th>
+              <th onclick="handleSort('products', 'category')">Category <span class="sort-icon" id="sort-products-category"></span></th>
+              <th onclick="handleSort('products', 'total_sales')">Sales <span class="sort-icon" id="sort-products-total_sales"></span></th>
+              <th onclick="handleSort('products', 'is_active')">Status <span class="sort-icon" id="sort-products-is_active"></span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody id="products-table-body"></tbody>
         </table>
       </div>
+      <div class="pagination" id="products-pagination"></div>
     </div>
 
     <!-- ORDERS PANEL -->
     <div id="panel-orders" class="panel">
-      <h2 style="font-size:1.8rem; margin-bottom:24px;">All Orders</h2>
-      <div class="table-wrap">
+      <div class="table-controls">
+        <h2 style="font-size:1.8rem; margin:0;">All Orders</h2>
+        <input type="text" class="search-input" placeholder="Search ID, Name or Status..." oninput="handleSearch('orders', this.value)">
+      </div>
+      <div class="table-wrap" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: none;">
         <table class="data-table">
-          <thead><tr><th>Order ID</th><th>User ID</th><th>Amount</th><th>Razorpay ID</th><th>Status</th><th>Date</th></tr></thead>
+          <thead>
+            <tr>
+              <th onclick="handleSort('orders', 'id')">Order ID <span class="sort-icon" id="sort-orders-id"></span></th>
+              <th onclick="handleSort('orders', 'user_name')">User <span class="sort-icon" id="sort-orders-user_name"></span></th>
+              <th onclick="handleSort('orders', 'total_amount')">Amount <span class="sort-icon" id="sort-orders-total_amount"></span></th>
+              <th onclick="handleSort('orders', 'razorpay_order_id')">Razorpay ID <span class="sort-icon" id="sort-orders-razorpay_order_id"></span></th>
+              <th onclick="handleSort('orders', 'status')">Status <span class="sort-icon" id="sort-orders-status"></span></th>
+              <th onclick="handleSort('orders', 'created_at')">Date <span class="sort-icon" id="sort-orders-created_at"></span></th>
+            </tr>
+          </thead>
           <tbody id="orders-table-body"></tbody>
         </table>
       </div>
+      <div class="pagination" id="orders-pagination"></div>
     </div>
 
     <!-- USERS PANEL -->
     <div id="panel-users" class="panel">
-      <h2 style="font-size:1.8rem; margin-bottom:24px;">Users</h2>
-      <div class="table-wrap">
+      <div class="table-controls">
+        <h2 style="font-size:1.8rem; margin:0;">Users</h2>
+        <input type="text" class="search-input" placeholder="Search ID, Name, Email..." oninput="handleSearch('users', this.value)">
+      </div>
+      <div class="table-wrap" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: none;">
         <table class="data-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr>
+              <th onclick="handleSort('users', 'id')">ID <span class="sort-icon" id="sort-users-id"></span></th>
+              <th onclick="handleSort('users', 'name')">Name <span class="sort-icon" id="sort-users-name"></span></th>
+              <th onclick="handleSort('users', 'email')">Email <span class="sort-icon" id="sort-users-email"></span></th>
+              <th onclick="handleSort('users', 'role')">Role <span class="sort-icon" id="sort-users-role"></span></th>
+              <th onclick="handleSort('users', 'is_active')">Status <span class="sort-icon" id="sort-users-is_active"></span></th>
+              <th onclick="handleSort('users', 'created_at')">Joined <span class="sort-icon" id="sort-users-created_at"></span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody id="users-table-body"></tbody>
         </table>
       </div>
+      <div class="pagination" id="users-pagination"></div>
     </div>
 
   </main>
@@ -167,7 +252,7 @@
   <div class="modal-box">
     <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
       <h3 style="font-size:1.5rem;" id="modal-title">Add Product</h3>
-      <button onclick="closeProductForm()" style="background:none; font-size:1.2rem; cursor:pointer;">✕</button>
+      <button onclick="closeProductForm()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-primary);">✕</button>
     </div>
 
     <form id="product-form" onsubmit="saveProduct(event)">
@@ -187,18 +272,15 @@
         <label for="p-featured">Featured Product</label>
       </div>
 
-      <!-- Upload Section with Preview -->
+      <!-- Upload Section -->
       <div id="upload-section" style="display:none; background:var(--bg-surface-hover); padding:16px; border-radius:var(--radius-md); margin-bottom:20px; border:1px solid var(--border);">
-        
         <img id="thumb-preview" class="image-preview" src="">
-        
         <div style="margin-bottom:16px;">
           <label class="form-label">Upload Thumbnail (Image)</label>
           <input type="file" id="thumb-file" accept="image/*" class="form-input" style="padding:10px; margin-bottom:8px;">
           <button type="button" onclick="uploadMedia('thumbnail')" class="btn-ghost" style="height:36px;">Upload Image</button>
           <span id="thumb-status" style="font-size:0.8rem; margin-left:8px; color:var(--success);"></span>
         </div>
-        
         <div>
           <label class="form-label">Upload Product File (PDF/ZIP)</label>
           <input type="file" id="product-file" class="form-input" style="padding:10px; margin-bottom:8px;">
@@ -218,10 +300,18 @@
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 <script>
-  let adminProductsData = [];
+  // Global Data State Manager
+  // Added id to users search. Added user_name to orders search fields.
+  const DataState = {
+    products: { raw: [], search: '', sortCol: '', sortDir: 'asc', page: 1, limit: 10, searchFields: ['title', 'category'] },
+    orders: { raw: [], search: '', sortCol: '', sortDir: 'asc', page: 1, limit: 10, searchFields: ['id', 'user_id', 'user_name', 'razorpay_order_id', 'status'] },
+    users: { raw: [], search: '', sortCol: '', sortDir: 'asc', page: 1, limit: 10, searchFields: ['id', 'name', 'email', 'role'] }
+  };
+
   let revenueChartInstance = null;
 
   document.addEventListener('DOMContentLoaded', () => {
+    if(window.innerWidth > 900) { document.querySelector('.desktop-title').style.display = 'block'; }
     Toast.init();
     if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
       document.getElementById('auth-required').style.display = 'block';
@@ -231,7 +321,11 @@
     loadDashboard();
   });
 
-  // Navigation & Animation
+  function toggleSidebar() {
+    document.getElementById('admin-sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+
   function showPanel(name, navItem) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     const panel = document.getElementById('panel-' + name);
@@ -240,16 +334,119 @@
     document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
     if(navItem) navItem.classList.add('active');
 
-    // GSAP Fade-in
+    if(window.innerWidth <= 900) {
+      document.getElementById('admin-sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+
     gsap.fromTo(panel, {opacity: 0, y: 10}, {opacity: 1, y: 0, duration: 0.4});
 
-    if (name === 'products') loadProducts();
-    if (name === 'orders') loadOrders();
-    if (name === 'users') loadUsers();
+    if (name === 'products' && DataState.products.raw.length === 0) loadProducts();
+    if (name === 'orders' && DataState.orders.raw.length === 0) loadOrders();
+    if (name === 'users' && DataState.users.raw.length === 0) loadUsers();
     if (name === 'dashboard') loadDashboard();
   }
 
   function logout() { Auth.clear(); window.location.href = '/'; }
+
+  /* =========================================================================
+   * DATA PROCESSING UTILITIES (Search, Sort, Paginate)
+   * ========================================================================= */
+  function processData(type) {
+    const state = DataState[type];
+    let data = [...state.raw];
+
+    // 1. Filter
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      data = data.filter(item => 
+        state.searchFields.some(field => {
+          // Custom check to support nested 'user_name' search in orders
+          if (field === 'user_name') {
+            return item.user && String(item.user.name || '').toLowerCase().includes(q);
+          }
+          return String(item[field] || '').toLowerCase().includes(q);
+        })
+      );
+    }
+
+    // 2. Sort
+    if (state.sortCol) {
+      data.sort((a, b) => {
+        // Handle sorting for nested user name inside Orders table
+        let valA = state.sortCol === 'user_name' ? (a.user ? a.user.name : '') : a[state.sortCol];
+        let valB = state.sortCol === 'user_name' ? (b.user ? b.user.name : '') : b[state.sortCol];
+        
+        if(valA === null || valA === undefined) valA = '';
+        if(valB === null || valB === undefined) valB = '';
+        
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return state.sortDir === 'asc' ? -1 : 1;
+        if (valA > valB) return state.sortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // 3. Paginate
+    const totalPages = Math.ceil(data.length / state.limit) || 1;
+    if (state.page > totalPages) state.page = totalPages;
+    
+    const start = (state.page - 1) * state.limit;
+    const pagedData = data.slice(start, start + state.limit);
+
+    return { pagedData, totalPages, totalCount: data.length };
+  }
+
+  function handleSearch(type, query) {
+    DataState[type].search = query;
+    DataState[type].page = 1;
+    renderTable(type, false);
+  }
+
+  function handleSort(type, col) {
+    const state = DataState[type];
+    if (state.sortCol === col) {
+      state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      state.sortCol = col;
+      state.sortDir = 'asc';
+    }
+    
+    document.querySelectorAll(`th span[id^="sort-${type}-"]`).forEach(el => el.innerHTML = '');
+    document.getElementById(`sort-${type}-${col}`).innerHTML = state.sortDir === 'asc' ? '▴' : '▾';
+    
+    renderTable(type, false);
+  }
+
+  function changePage(type, delta) {
+    DataState[type].page += delta;
+    renderTable(type, false);
+  }
+
+  function updatePaginationUI(type, totalPages, totalCount) {
+    const state = DataState[type];
+    const container = document.getElementById(`${type}-pagination`);
+    if(!container) return;
+
+    const start = totalCount === 0 ? 0 : ((state.page - 1) * state.limit) + 1;
+    const end = Math.min(state.page * state.limit, totalCount);
+
+    container.innerHTML = `
+      <div class="page-info">Showing ${start} to ${end} of ${totalCount}</div>
+      <div class="page-btns">
+        <button class="page-btn" onclick="changePage('${type}', -1)" ${state.page === 1 ? 'disabled' : ''}>Prev</button>
+        <button class="page-btn" onclick="changePage('${type}', 1)" ${state.page === totalPages ? 'disabled' : ''}>Next</button>
+      </div>
+    `;
+  }
+
+  function renderTable(type, animate = true) {
+    if (type === 'products') renderProductsUI(animate);
+    if (type === 'orders') renderOrdersUI(animate);
+    if (type === 'users') renderUsersUI(animate);
+  }
 
   // ── Dashboard & Chart ──
   async function loadDashboard() {
@@ -260,7 +457,6 @@
       document.getElementById('stat-products').textContent = s.total_products;
       document.getElementById('stat-users').textContent = s.total_users;
 
-      // Render Table
       const tbody = document.getElementById('recent-orders-body');
       tbody.innerHTML = s.recent_orders.map(o => `
         <tr>
@@ -272,10 +468,7 @@
         </tr>
       `).join('');
 
-      // Init Chart.js (Mocking 7 days data based on total revenue for effect)
       initChart(s.total_revenue);
-
-      // GSAP animate stats
       gsap.from(".stat-card", { opacity: 0, y: 20, stagger: 0.1, duration: 0.5 });
     } catch (err) {}
   }
@@ -283,34 +476,38 @@
   function initChart(totalRev) {
     const ctx = document.getElementById('revenueChart').getContext('2d');
     if(revenueChartInstance) revenueChartInstance.destroy();
-    
     revenueChartInstance = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'],
         datasets: [{
           label: 'Revenue Trend (₹)',
           data: [totalRev*0.1, totalRev*0.15, totalRev*0.2, totalRev*0.25, totalRev*0.4, totalRev*0.6, totalRev],
-          borderColor: '#2563EB',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
-          fill: true, tension: 0.4
+          backgroundColor: '#2563EB', hoverBackgroundColor: '#1D4ED8', borderRadius: 6, barPercentage: 0.6
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } } }
     });
   }
 
-  // ── Products CRUD ──
+  // ── Products CRUD & Render ──
   async function loadProducts() {
-    const tbody = document.getElementById('products-table-body');
     try {
-      adminProductsData = await API.get('/admin/products');
-      tbody.innerHTML = adminProductsData.map(p => `
+      DataState.products.raw = await API.get('/admin/products');
+      renderTable('products', true);
+    } catch (err) {}
+  }
+
+  function renderProductsUI(animate) {
+    const { pagedData, totalPages, totalCount } = processData('products');
+    const tbody = document.getElementById('products-table-body');
+    
+    if(pagedData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 24px;">No products found</td></tr>`;
+    } else {
+      tbody.innerHTML = pagedData.map(p => `
         <tr>
-          <td>
-            <div style="font-weight:600;">${p.title}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted)">/${p.slug}</div>
-          </td>
+          <td><div style="font-weight:600;">${p.title}</div><div style="font-size:0.75rem; color:var(--text-muted)">/${p.slug}</div></td>
           <td style="font-weight:700;">${formatPrice(p.price)}</td>
           <td><span class="badge badge-info">${p.category || 'N/A'}</span></td>
           <td>${p.total_sales || 0}</td>
@@ -324,8 +521,10 @@
           </td>
         </tr>
       `).join('');
-      gsap.from("#products-table-body tr", { opacity: 0, y: 10, stagger: 0.05 });
-    } catch (err) {}
+    }
+    
+    updatePaginationUI('products', totalPages, totalCount);
+    if(animate) gsap.from("#products-table-body tr", { opacity: 0, y: 10, stagger: 0.05, duration: 0.3 });
   }
 
   function openProductForm(product) {
@@ -333,44 +532,24 @@
     document.getElementById('edit-id').value = product ? product.id : '';
     document.getElementById('modal-title').textContent = product ? 'Edit Product' : 'Add Product';
     document.getElementById('upload-section').style.display = product ? 'block' : 'none';
-    
-    // Reset Preview
     const preview = document.getElementById('thumb-preview');
-    if(product && product.thumbnail_url) {
-      preview.src = product.thumbnail_url;
-      preview.style.display = 'block';
-    } else {
-      preview.style.display = 'none';
-    }
-
+    if(product && product.thumbnail_url) { preview.src = product.thumbnail_url; preview.style.display = 'block'; } else { preview.style.display = 'none'; }
     if(product) {
-      document.getElementById('p-title').value = product.title;
-      document.getElementById('p-price').value = product.price;
-      document.getElementById('p-original').value = product.original_price || '';
-      document.getElementById('p-category').value = product.category || '';
-      document.getElementById('p-short').value = product.short_description || '';
-      document.getElementById('p-desc').value = product.description || '';
+      document.getElementById('p-title').value = product.title; document.getElementById('p-price').value = product.price;
+      document.getElementById('p-original').value = product.original_price || ''; document.getElementById('p-category').value = product.category || '';
+      document.getElementById('p-short').value = product.short_description || ''; document.getElementById('p-desc').value = product.description || '';
       document.getElementById('p-featured').checked = product.is_featured;
     }
     document.getElementById('product-modal').classList.add('open');
   }
 
   function closeProductForm() { document.getElementById('product-modal').classList.remove('open'); }
-  function editProduct(id) { const p = adminProductsData.find(x => x.id === id); if(p) openProductForm(p); }
+  function editProduct(id) { const p = DataState.products.raw.find(x => x.id === id); if(p) openProductForm(p); }
 
   async function saveProduct(e) {
     e.preventDefault();
     const id = document.getElementById('edit-id').value;
-    const payload = {
-      title: document.getElementById('p-title').value,
-      price: parseFloat(document.getElementById('p-price').value),
-      original_price: parseFloat(document.getElementById('p-original').value) || null,
-      category: document.getElementById('p-category').value,
-      short_description: document.getElementById('p-short').value,
-      description: document.getElementById('p-desc').value,
-      is_featured: document.getElementById('p-featured').checked
-    };
-
+    const payload = { title: document.getElementById('p-title').value, price: parseFloat(document.getElementById('p-price').value), original_price: parseFloat(document.getElementById('p-original').value) || null, category: document.getElementById('p-category').value, short_description: document.getElementById('p-short').value, description: document.getElementById('p-desc').value, is_featured: document.getElementById('p-featured').checked };
     try {
       if(id) { await API.put('/products/' + id, payload); Toast.success('Product updated'); } 
       else { const res = await API.post('/products', payload); document.getElementById('edit-id').value = res.id; document.getElementById('upload-section').style.display = 'block'; Toast.success('Created! Now upload files.'); return; }
@@ -378,67 +557,105 @@
     } catch(err) { Toast.error(err.message); }
   }
 
-  async function toggleProduct(id, currentActive) {
-    try { await API.put('/products/' + id, { is_active: !currentActive }); Toast.success('Status updated'); loadProducts(); } catch(err){}
-  }
+  async function toggleProduct(id, currentActive) { try { await API.put('/products/' + id, { is_active: !currentActive }); Toast.success('Status updated'); loadProducts(); } catch(err){} }
+  async function deleteProduct(id, title) { if(!confirm(`Delete "${title}"?`)) return; try { await API.delete('/products/' + id); Toast.success('Deleted'); loadProducts(); } catch(err){} }
 
-  async function deleteProduct(id, title) {
-    if(!confirm(`Delete "${title}"?`)) return;
-    try { await API.delete('/products/' + id); Toast.success('Deleted'); loadProducts(); } catch(err){}
-  }
-
-  // ── Image Preview & Uploads ──
   document.getElementById('thumb-file').addEventListener('change', function(e) {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const preview = document.getElementById('thumb-preview');
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-      }
-      reader.readAsDataURL(file);
-    }
+    if (file) { const reader = new FileReader(); reader.onload = function(e) { const preview = document.getElementById('thumb-preview'); preview.src = e.target.result; preview.style.display = 'block'; }; reader.readAsDataURL(file); }
   });
-
+  
   async function uploadMedia(type) {
-    const id = document.getElementById('edit-id').value;
-    const fileInput = document.getElementById(type === 'thumbnail' ? 'thumb-file' : 'product-file');
-    const statusText = document.getElementById(type === 'thumbnail' ? 'thumb-status' : 'file-status');
-    
+    const id = document.getElementById('edit-id').value; const fileInput = document.getElementById(type === 'thumbnail' ? 'thumb-file' : 'product-file'); const statusText = document.getElementById(type === 'thumbnail' ? 'thumb-status' : 'file-status');
     if(!fileInput.files[0]) { Toast.error('Select a file first'); return; }
-    
-    const formData = new FormData();
-    formData.append('file', fileInput.files[0]);
-    statusText.textContent = 'Uploading...';
-    
-    try {
-      await API.upload(`/products/${id}/upload-${type}`, formData);
-      statusText.textContent = '✅ Success';
-      Toast.success(`${type} uploaded!`);
-      loadProducts();
-    } catch(err) { statusText.textContent = '❌ Failed'; Toast.error(err.message); }
+    const formData = new FormData(); formData.append('file', fileInput.files[0]); statusText.textContent = 'Uploading...';
+    try { await API.upload(`/products/${id}/upload-${type}`, formData); statusText.textContent = '✅ Success'; Toast.success(`${type} uploaded!`); loadProducts(); } catch(err) { statusText.textContent = '❌ Failed'; Toast.error(err.message); }
   }
 
-  // ── Orders & Users ──
+  // ── Orders Render ──
   async function loadOrders() {
     try {
-      const orders = await API.get('/admin/orders?limit=50');
-      document.getElementById('orders-table-body').innerHTML = orders.map(o => `
-        <tr><td>#${o.id}</td><td>#${o.user_id}</td><td style="font-weight:700;">${formatPrice(o.total_amount)}</td><td>${o.razorpay_order_id || '-'}</td><td><span class="badge badge-success">${o.status}</span></td><td>${formatDate(o.created_at)}</td></tr>
-      `).join('');
-      gsap.from("#orders-table-body tr", { opacity: 0, y: 10, stagger: 0.05 });
+      DataState.orders.raw = await API.get('/admin/orders?limit=500');
+      renderTable('orders', true);
     } catch(err){}
   }
 
+  function renderOrdersUI(animate) {
+    const { pagedData, totalPages, totalCount } = processData('orders');
+    const tbody = document.getElementById('orders-table-body');
+    
+    if(pagedData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 24px;">No orders found</td></tr>`;
+    } else {
+      tbody.innerHTML = pagedData.map(o => `
+        <tr>
+          <td><div style="font-weight:600;">#${o.id}</div></td>
+          <td>
+            <div style="font-weight:500; color:var(--text-primary);">${o.user ? o.user.name : 'Unknown User'}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted)">#${o.user_id}</div>
+          </td>
+          <td style="font-weight:700;">${formatPrice(o.total_amount)}</td>
+          <td>${o.razorpay_order_id || '-'}</td>
+          <td><span class="badge badge-success">${o.status}</span></td>
+          <td>${formatDate(o.created_at)}</td>
+        </tr>
+      `).join('');
+    }
+    
+    updatePaginationUI('orders', totalPages, totalCount);
+    if(animate) gsap.from("#orders-table-body tr", { opacity: 0, y: 10, stagger: 0.05, duration: 0.3 });
+  }
+
+  // ── Users Render ──
   async function loadUsers() {
     try {
-      const users = await API.get('/admin/users?limit=50');
-      document.getElementById('users-table-body').innerHTML = users.map(u => `
-        <tr><td>${u.name}</td><td>${u.email}</td><td><span class="badge badge-info">${u.role}</span></td><td><span class="badge ${u.is_active ? 'badge-success' : 'badge-danger'}">${u.is_active ? 'Active' : 'Disabled'}</span></td><td>${formatDate(u.created_at)}</td><td><button class="btn-ghost" onclick="API.put('/admin/users/${u.id}', {is_active: !${u.is_active}}).then(loadUsers)">Toggle</button></td></tr>
-      `).join('');
-      gsap.from("#users-table-body tr", { opacity: 0, y: 10, stagger: 0.05 });
+      DataState.users.raw = await API.get('/admin/users?limit=500');
+      renderTable('users', true);
     } catch(err){}
+  }
+
+  // Explicit Block/Unblock user function
+  async function toggleUser(id, currentActive) {
+    try { 
+      await API.put(`/admin/users/${id}`, { is_active: !currentActive }); 
+      Toast.success(currentActive ? 'User Blocked successfully' : 'User Unblocked successfully'); 
+      loadUsers(); 
+    } catch(err) {
+      Toast.error('Failed to update user status');
+    } 
+  }
+
+  function renderUsersUI(animate) {
+    const { pagedData, totalPages, totalCount } = processData('users');
+    const tbody = document.getElementById('users-table-body');
+    
+    if(pagedData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 24px;">No users found</td></tr>`;
+    } else {
+      tbody.innerHTML = pagedData.map(u => {
+        // Red color for active users (to block them), Green for disabled users (to unblock them)
+        const btnColor = u.is_active ? 'var(--danger)' : 'var(--success)';
+        const btnText = u.is_active ? 'Block' : 'Unblock';
+
+        return `
+        <tr>
+          <td style="font-weight:600;">#${u.id}</td>
+          <td>${u.name}</td>
+          <td>${u.email}</td>
+          <td><span class="badge badge-info">${u.role}</span></td>
+          <td><span class="badge ${u.is_active ? 'badge-success' : 'badge-danger'}">${u.is_active ? 'Active' : 'Blocked'}</span></td>
+          <td>${formatDate(u.created_at)}</td>
+          <td>
+            <button class="btn-ghost" style="padding: 6px 12px; font-size: 0.8rem; font-weight:600; color: ${btnColor}; border: 1px solid currentColor;" onclick="toggleUser(${u.id}, ${u.is_active})">
+              ${btnText}
+            </button>
+          </td>
+        </tr>
+      `}).join('');
+    }
+    
+    updatePaginationUI('users', totalPages, totalCount);
+    if(animate) gsap.from("#users-table-body tr", { opacity: 0, y: 10, stagger: 0.05, duration: 0.3 });
   }
 </script>
 </body>
